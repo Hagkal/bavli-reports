@@ -11,7 +11,6 @@ import validators
 
 from bavli_reports.report_worker import do_report_work
 
-
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
@@ -51,12 +50,13 @@ class ConsoleUi:
 
     def __init__(self, frame):
         self.frame = frame
+        self.frame.rowconfigure(0, weight=1)
+        self.frame.columnconfigure(0, weight=1)
+
         # Create a ScrolledText wdiget
-        self.scrolled_text = ScrolledText(frame, state='disabled')
+        self.scrolled_text = ScrolledText(frame, state='disabled', background='white')
         self.scrolled_text.grid(row=0, column=0, rowspan=3, columnspan=3, sticky=NSEW)
-        self.scrolled_text.configure(font='TkFixedFont')
-        self.scrolled_text.rowconfigure(4, weight=1)
-        self.scrolled_text.columnconfigure(8, weight=1)
+        self.scrolled_text.configure(font=('TkFixedFont', 16))
         self.scrolled_text.tag_config('NOTSET', foreground='green')
         self.scrolled_text.tag_config('INFO', foreground='black')
         self.scrolled_text.tag_config('DEBUG', foreground='purple')
@@ -66,7 +66,7 @@ class ConsoleUi:
         # Create a logging handler using a queue
         self.log_queue = queue.Queue()
         self.queue_handler = QueueHandler(self.log_queue)
-        formatter = logging.Formatter('%(asctime)s: %(message)s')
+        formatter = logging.Formatter(fmt='%(asctime)s Hagai says: %(message)s', datefmt='%H:%M:%S')
         self.queue_handler.setFormatter(formatter)
         self.queue_handler.setLevel(logging.DEBUG)
         logger.addHandler(self.queue_handler)
@@ -96,6 +96,7 @@ class ConsoleUi:
 if __name__ == "__main__":
     urls = []
 
+
     def check_both_url():
         for url in urls:
             if not validators.url(url.get()):
@@ -104,13 +105,17 @@ if __name__ == "__main__":
         start_button["state"] = NORMAL
         logger.info("Ok we are all set!")
 
+
     root = Tk()
     root.title("Report Master")
+    s = ttk.Style()
+    s.configure("Go.TButton", foreground='green', font=('Ariel', 16))
+    s.configure("TFrame", background='white')
 
-    content = ttk.Frame(root, padding=(3,3,12,12))
+    content = ttk.Frame(root, padding=(3, 3, 12, 12))
     greeting_label = ttk.Label(content, text="Hi Guy, welcome to the reports master", anchor="center")
 
-    start_button = ttk.Button(content, text="Go!", state=DISABLED, command=thread_worker)
+    start_button = ttk.Button(content, text="Go!", state=DISABLED, command=thread_worker, style="Go.TButton")
 
     bavli_label = ttk.Label(content, text="Your sheet URL")
     bavli_string_var = tk.StringVar()
@@ -132,9 +137,9 @@ if __name__ == "__main__":
     greeting_label.grid(column=0, row=0, columnspan=3, sticky=(N, S, E, W))
 
     bavli_label.grid(column=0, row=1, sticky=(N, W), padx=5)
-    bavli_url.grid(column=1, row=1, columnspan=2, sticky=(N,E,W), pady=5, padx=5)
+    bavli_url.grid(column=1, row=1, columnspan=2, sticky=(N, E, W), pady=5, padx=5)
     external_label.grid(column=0, row=2, sticky=(N, W), padx=5)
-    external_url.grid(column=1, row=2, columnspan=2, sticky=(N,E,W), pady=5, padx=5)
+    external_url.grid(column=1, row=2, columnspan=2, sticky=(N, E, W), pady=5, padx=5)
 
     # show_matches.grid(column=0, row=3)
 
@@ -150,5 +155,4 @@ if __name__ == "__main__":
     content.rowconfigure(6, weight=1)
     content.rowconfigure(7, weight=1)
 
-    # start_button.bind("<Button-1>", on_click)
     root.mainloop()
